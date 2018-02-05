@@ -1,8 +1,9 @@
 import { Component, Inject } from '@angular/core';
-import { IonicPage, NavController, NavParams, ToastController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ToastController, ActionSheetController, ModalController } from 'ionic-angular';
 import { Dish } from '../../shared/dish';
 import { Comment } from '../../shared/comment';
 import { FavoriteProvider } from '../../providers/favorite/favorite';
+import { CommentPage } from '../comment/comment';
 /**
  * Generated class for the DishdetailPage page.
  *
@@ -22,10 +23,14 @@ export class DishdetailPage {
   avgstars: string;
   numcomments: number;
   favorite: boolean = false;
+  comments: Comment[];
+  comment: Comment;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     @Inject('BaseURL') private BaseURL,
     private toastCtrl: ToastController,
+    public actionSheetCtrl: ActionSheetController,
+    public modalCtrl: ModalController,
     private favoriteservice: FavoriteProvider) {
       this.dish = navParams.get('dish');
       this.favorite = favoriteservice.isFavorite(this.dish.id);
@@ -48,4 +53,42 @@ export class DishdetailPage {
       duration: 3000}).present();
 
   }
+  openMenu() {
+    let actionSheet = this.actionSheetCtrl.create({
+      title: 'Select Action',
+      buttons: [
+        {
+          text: 'Add to Favorites',
+          handler: () => {
+            this.favorite = this.favoriteservice.addFavorite(this.dish.id);
+          }
+        },
+        {
+          text: 'Add Comment',
+          handler: () => {
+            let modal = this.modalCtrl.create(CommentPage);
+            modal.onDidDismiss(comment => {
+               if (comment) {
+                 this.dish.comments.push(comment);
+                 this.numcomments = this.dish.comments.length;
+                 let total = 0;
+                 this.dish.comments.forEach(comment => total += comment.rating );
+                 this.avgstars = (total/this.numcomments).toFixed(2);
+               }
+             });
+            modal.present();
+          }
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel', // will always sort to be on the bottom
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        }
+      ]
+    });
+    actionSheet.present();
+  }
+
 }
