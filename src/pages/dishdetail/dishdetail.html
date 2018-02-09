@@ -18,9 +18,12 @@
 </ion-header>
 
 
-<ion-content padding>
 
-  <ion-card *ngIf="dish">
+<ion-content padding>
+  <ion-grid>
+  <ion-row>
+    <ion-col col-12 col-lg-6 *ngIf="dish">
+  <ion-card>
     <img src="{{BaseURL + dish.image}}"/>
   <ion-card-content>
     <ion-card-title>
@@ -53,8 +56,9 @@
     <h2>Error</h2>
     <h4>{{errMess}}</h4>
   </div>
-
-  <ion-list *ngIf="dish">
+  </ion-col>
+  <ion-col col-12 col-lg-6 *ngIf="dish">
+  <ion-list>
     <ion-list-header>
     Comments
   </ion-list-header>
@@ -66,6 +70,9 @@
     </p>
   </ion-item>
   </ion-list>
+</ion-col>
+</ion-row>
+</ion-grid>
   <ion-fab bottom right [hidden]="favorite">
     <button ion-fab (click)="addToFavorites()">
       <ion-icon name="heart-outline"></ion-icon>
